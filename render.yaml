@@ -1,11 +1,15 @@
 services:
-- type: web
-  name: authorizer
-  env: docker
-  autoDeploy: false
-  healthCheckPath: /healthz
-  envVars:
-  - key: DATABASE_URL
-    value: data.db
-  - key: DATABASE_TYPE
-    value: sqlite
+  - type: web
+    name: authorizer
+    env: docker
+    autoDeploy: false
+    healthCheckPath: /
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: authorizer-db
+          property: connectionString
+      - key: DATABASE_TYPE
+        value: postgres
+databases:
+  - name: authorizer-db
