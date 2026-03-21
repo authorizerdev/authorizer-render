@@ -4,3 +4,25 @@ services:
     env: docker
     autoDeploy: false
     healthCheckPath: /
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: authorizer-db
+          property: connectionString
+      - key: DATABASE_TYPE
+        value: postgres
+      - key: CLIENT_ID
+        generateValue: true
+      - key: CLIENT_SECRET
+        generateValue: true
+      - key: ADMIN_SECRET
+        generateValue: true
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_TYPE
+        value: HS256
+
+databases:
+  - name: authorizer-db
+    plan: free
+    databaseName: authorizer
