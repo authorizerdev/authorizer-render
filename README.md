@@ -1,6 +1,6 @@
 # Authorizer on Render
 
-Click to deploy a [Authorizer](https://authorizer.dev) instance with a managed PostgreSQL database on [Render](https://render.com/).
+Deploy production ready [authorizer.dev](https://authorizer.dev) instance on [Render](https://render.com/) with a managed PostgreSQL database and build with it in 30seconds
 
 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/authorizerdev/authorizer-render)
 
@@ -10,16 +10,31 @@ After clicking the above button, follow the steps mentioned below:
 
 Enter the name for your instance.
 
-> Note: Optionally you can choose to deploy a branch `without-postgres` and configure database env, if you already have an postgres instance running.
+> Note: Optionally you can choose to deploy a branch `without-postgres` and configure database env, if you already have a postgres instance running.
 
-<img src="/images/render_1.png" style="height:20em;width:100%;object-fit:contain;"/>
+### Step 2: Configure Required Variables
 
-### Step 2: Configure Envs
+Authorizer v2 requires the following variables. Configure them in Render's environment settings:
 
-Open authorizer URL in your browser and configure rest of your [envs](https://docs.authorizer.dev/core/env).
+| Variable | Description | Example |
+| -------- | ----------- | ------- |
+| `DATABASE_TYPE` | Database type | `postgres` |
+| `DATABASE_URL` | Database connection string | *(auto-configured by Render)* |
+| `JWT_TYPE` | JWT signing algorithm | `HS256` |
+| `JWT_SECRET` | JWT signing secret | `test` |
+| `ADMIN_SECRET` | Admin secret for admin operations | `admin` |
+| `CLIENT_ID` | Client identifier **(required)** | `123456` |
+| `CLIENT_SECRET` | Client secret **(required)** | `secret` |
 
-> Note: `DATABASE_URL` and `DATABASE_TYPE` are only configurable via render envs
+These are mapped to CLI flags at startup. Please refer to the [server configuration docs](https://docs.authorizer.dev/core/server-config) for all available flags.
 
-<img src="/images/render_2.png" style="height:20em;width:100%;object-fit:contain;"/>
+## Notes
 
-That's all 🎉 you can get started with [Authorizer](https://docs.authorizer.dev/getting-started) now! You have your authentication and authorization layer ready.
+- Source repo: https://github.com/authorizerdev/authorizer
+- Docs: https://docs.authorizer.dev/deployment/render/
+
+### Updating Authorizer on existing Render instance
+
+- You can update the [docker image](https://github.com/authorizerdev/authorizer-render/blob/main/Dockerfile#L2) to the desired version in your repository which gets created with your deployment.
+
+- You can find all the versions on [github](https://github.com/authorizerdev/authorizer/releases) or [dockerhub](https://hub.docker.com/r/lakhansamani/authorizer)

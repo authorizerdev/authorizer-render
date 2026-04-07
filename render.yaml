@@ -11,5 +11,49 @@ services:
           property: connectionString
       - key: DATABASE_TYPE
         value: postgres
+      - key: CLIENT_ID
+        generateValue: true
+      - key: CLIENT_SECRET
+        generateValue: true
+      - key: ADMIN_SECRET
+        # REQUIRED, must be non-empty. As of the April 2026 security
+        # release the authorizer binary refuses to start when this is
+        # empty (the previous insecure "password" default has been
+        # removed). generateValue makes Render mint a strong random
+        # value on first deploy.
+        generateValue: true
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_TYPE
+        value: HS256
+      # ----------------------------------------------------------------
+      # April 2026 security hardening flags. See
+      # https://docs.authorizer.dev/core/security for the full reference.
+      # ----------------------------------------------------------------
+      - key: TRUSTED_PROXIES
+        # Render terminates TLS at their edge and routes traffic through
+        # their own router. Set this in the Render dashboard to the
+        # router CIDR (or leave empty and accept that per-IP rate
+        # limiting will key on the router IP). sync:false marks the
+        # value as sensitive — Render will not sync it from this YAML.
+        sync: false
+      - key: REFRESH_TOKEN_EXPIRES_IN
+        value: "2592000"
+      - key: ENABLE_HSTS
+        # Render terminates TLS at the edge so HSTS is safe to enable.
+        value: "true"
+      - key: DISABLE_CSP
+        value: "false"
+      - key: GRAPHQL_MAX_COMPLEXITY
+        value: "300"
+      - key: GRAPHQL_MAX_DEPTH
+        value: "15"
+      - key: GRAPHQL_MAX_ALIASES
+        value: "30"
+      - key: GRAPHQL_MAX_BODY_BYTES
+        value: "1048576"
+
 databases:
   - name: authorizer-db
+    plan: free
+    databaseName: authorizer
