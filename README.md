@@ -26,6 +26,17 @@ Authorizer v2 requires the following variables. Configure them in Render's envir
 | `CLIENT_ID` | Client identifier **(required)** | `123456` |
 | `CLIENT_SECRET` | Client secret **(required)** | `secret` |
 
+### Optional environment variables
+
+| Variable | Description | Default |
+| -------- | ----------- | ------- |
+| `METRICS_HOST` | Bind address for `/metrics` (`--metrics-host`) | `127.0.0.1` |
+| `METRICS_PORT` | Port for `/metrics` (`--metrics-port`) | `8081` |
+| `RATE_LIMIT_RPS` | Per-IP requests/sec (`--rate-limit-rps`) | `30` |
+| `RATE_LIMIT_BURST` | Per-IP burst (`--rate-limit-burst`) | `20` |
+| `RATE_LIMIT_FAIL_CLOSED` | `true` = 503 on rate-limit backend errors (`--rate-limit-fail-closed`) | `false` |
+| `REDIS_URL` | Redis for sessions + shared rate limits if you scale to multiple instances | *(unset)* |
+
 These are mapped to CLI flags at startup. Please refer to the [server configuration docs](https://docs.authorizer.dev/core/server-config) for all available flags.
 
 ## Notes
@@ -37,4 +48,4 @@ These are mapped to CLI flags at startup. Please refer to the [server configurat
 
 - You can update the [docker image](https://github.com/authorizerdev/authorizer-render/blob/main/Dockerfile#L2) to the desired version in your repository which gets created with your deployment.
 
-- You can find all the versions on [github](https://github.com/authorizerdev/authorizer/releases) or [dockerhub](https://hub.docker.com/r/lakhansamani/authorizer)
+- You can find all the versions on [github](https://github.com/authorizerdev/authorizer/releases) or [Quay](https://quay.io/repository/authorizer/authorizer)
