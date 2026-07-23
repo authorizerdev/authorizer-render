@@ -26,10 +26,20 @@ services:
         generateValue: true
       - key: JWT_TYPE
         value: HS256
+      - key: AUTHORIZER_URL
+        # Canonical/trusted base URL of this deployment (e.g. your Render
+        # service URL). When set, it is the only source used to build
+        # verification/reset/magic-link URLs, the JWT iss claim, and OIDC
+        # discovery URLs. Leaving it empty exposes host-header-injection
+        # account takeover (CWE-640) — set this in the Render dashboard
+        # once the service URL is known.
+        sync: false
       # ----------------------------------------------------------------
       # April 2026 security hardening flags. See
       # https://docs.authorizer.dev/core/security for the full reference.
       # ----------------------------------------------------------------
+      - key: OAUTH2_1_STRICT
+        value: "false"
       - key: TRUSTED_PROXIES
         # Render terminates TLS at their edge and routes traffic through
         # their own router. Set this in the Render dashboard to the
