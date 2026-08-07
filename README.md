@@ -22,6 +22,7 @@ Authorizer v2 requires the following variables. Configure them in Render's envir
 | `DATABASE_URL` | Database connection string | *(auto-configured by Render)* |
 | `JWT_TYPE` | JWT signing algorithm | `HS256` |
 | `JWT_SECRET` | JWT signing secret | `test` |
+| `ENCRYPTION_KEY` | At-rest key for TOTP secrets and OTP digests. Required with `RS*`/`ES*` | *(output of `openssl rand -hex 32`)* |
 | `ADMIN_SECRET` | Admin secret for admin operations | `admin` |
 | `CLIENT_ID` | Client identifier **(required)** | `123456` |
 | `CLIENT_SECRET` | Client secret **(required)** | `secret` |

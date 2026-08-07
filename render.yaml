@@ -24,6 +24,11 @@ services:
         generateValue: true
       - key: JWT_SECRET
         generateValue: true
+      # Encrypts TOTP secrets and OTP digests at rest. Required with RS*/ES*;
+      # with HS* it falls back to JWT_SECRET, but a distinct value keeps JWT
+      # secret rotation from locking out enrolled TOTP users.
+      - key: ENCRYPTION_KEY
+        generateValue: true
       - key: JWT_TYPE
         value: HS256
       - key: AUTHORIZER_URL
