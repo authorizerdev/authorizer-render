@@ -31,6 +31,13 @@ services:
         generateValue: true
       - key: JWT_TYPE
         value: HS256
+      - key: MCP_ENABLED
+        # Serve the MCP tool surface over HTTP at POST <AUTHORIZER_URL>/mcp as
+        # an OAuth 2.1 resource server for AI agents. REQUIRES AUTHORIZER_URL:
+        # the audience every MCP token is checked against is derived from it, so
+        # the server exits at boot if this is true without one. Off by default —
+        # it is a new internet-facing authenticated surface.
+        value: "false"
       - key: AUTHORIZER_URL
         # Canonical/trusted base URL of this deployment (e.g. your Render
         # service URL). When set, it is the only source used to build
