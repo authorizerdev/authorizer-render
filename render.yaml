@@ -39,12 +39,20 @@ services:
         # it is a new internet-facing authenticated surface.
         value: "false"
       - key: AUTHORIZER_URL
-        # Canonical/trusted base URL of this deployment (e.g. your Render
-        # service URL). When set, it is the only source used to build
+        # REQUIRED — the server exits at boot without it, so the service will
+        # fail to start until this is set. Render prompts for it at blueprint
+        # deploy; if you skip the prompt, set it in the dashboard as soon as
+        # the service URL is known and redeploy.
+        #
+        # Canonical/trusted base URL of this deployment — your Render service
+        # URL, e.g. https://authorizer.onrender.com (include the scheme; a
+        # bare hostname is rejected). It is the only source used to build
         # verification/reset/magic-link URLs, the JWT iss claim, and OIDC
-        # discovery URLs. Leaving it empty exposes host-header-injection
-        # account takeover (CWE-640) — set this in the Render dashboard
-        # once the service URL is known.
+        # discovery URLs; deriving them from request headers instead exposes
+        # host-header-injection account takeover (CWE-640).
+        #
+        # Not populated automatically: a blueprint cannot concatenate the
+        # scheme onto fromService.host, and the value must be a full URL.
         sync: false
       # ----------------------------------------------------------------
       # April 2026 security hardening flags. See
