@@ -16,11 +16,64 @@ services:
       - key: CLIENT_SECRET
         generateValue: true
       - key: ADMIN_SECRET
+        # REQUIRED, must be non-empty. As of the April 2026 security
+        # release the authorizer binary refuses to start when this is
+        # empty (the previous insecure "password" default has been
+        # removed). generateValue makes Render mint a strong random
+        # value on first deploy.
         generateValue: true
       - key: JWT_SECRET
         generateValue: true
+      # Encrypts TOTP secrets and OTP digests at rest. Required with RS*/ES*;
+      # with HS* it falls back to JWT_SECRET, but a distinct value keeps JWT
+      # secret rotation from locking out enrolled TOTP users.
+      - key: ENCRYPTION_KEY
+        generateValue: true
       - key: JWT_TYPE
         value: HS256
+      - key: MCP_ENABLED
+        # Serve the MCP tool surface over HTTP at POST <AUTHORIZER_URL>/mcp as
+        # an OAuth 2.1 resource server for AI agents. REQUIRES AUTHORIZER_URL:
+        # the audience every MCP token is checked against is derived from it, so
+        # the server exits at boot if this is true without one. Off by default —
+        # it is a new internet-facing authenticated surface.
+        value: "false"
+      - key: AUTHORIZER_URL
+        # Canonical/trusted base URL of this deployment (e.g. your Render
+        # service URL). When set, it is the only source used to build
+        # verification/reset/magic-link URLs, the JWT iss claim, and OIDC
+        # discovery URLs. Leaving it empty exposes host-header-injection
+        # account takeover (CWE-640) — set this in the Render dashboard
+        # once the service URL is known.
+        sync: false
+      # ----------------------------------------------------------------
+      # April 2026 security hardening flags. See
+      # https://docs.authorizer.dev/core/security for the full reference.
+      # ----------------------------------------------------------------
+      - key: OAUTH2_1_STRICT
+        value: "false"
+      - key: TRUSTED_PROXIES
+        # Render terminates TLS at their edge and routes traffic through
+        # their own router. Set this in the Render dashboard to the
+        # router CIDR (or leave empty and accept that per-IP rate
+        # limiting will key on the router IP). sync:false marks the
+        # value as sensitive — Render will not sync it from this YAML.
+        sync: false
+      - key: REFRESH_TOKEN_EXPIRES_IN
+        value: "2592000"
+      - key: ENABLE_HSTS
+        # Render terminates TLS at the edge so HSTS is safe to enable.
+        value: "true"
+      - key: DISABLE_CSP
+        value: "false"
+      - key: GRAPHQL_MAX_COMPLEXITY
+        value: "300"
+      - key: GRAPHQL_MAX_DEPTH
+        value: "15"
+      - key: GRAPHQL_MAX_ALIASES
+        value: "30"
+      - key: GRAPHQL_MAX_BODY_BYTES
+        value: "1048576"
 
 databases:
   - name: authorizer-db
