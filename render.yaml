@@ -3,13 +3,17 @@ services:
     name: authorizer
     env: docker
     autoDeploy: false
-    healthCheckPath: /
+    healthCheckPath: /health
     envVars:
       - key: DATABASE_URL
-        fromDatabase:
-          name: authorizer-db
-          property: connectionString
+        # Connection string for YOUR existing database. sync:false so Render
+        # prompts for it at blueprint deploy and never stores it in this repo.
+        # This branch provisions no database — use the main branch for a
+        # managed Render postgres.
+        sync: false
       - key: DATABASE_TYPE
+        # Any backend the server supports: postgres, mysql, mongodb, ... See
+        # https://docs.authorizer.dev/core/databases — must match DATABASE_URL.
         value: postgres
       - key: CLIENT_ID
         generateValue: true
@@ -39,17 +43,40 @@ services:
         # it is a new internet-facing authenticated surface.
         value: "false"
       - key: AUTHORIZER_URL
-        # Canonical/trusted base URL of this deployment (e.g. your Render
-        # service URL). When set, it is the only source used to build
+        # REQUIRED — the server exits at boot without it, so the service will
+        # fail to start until this is set. Render prompts for it at blueprint
+        # deploy; if you skip the prompt, set it in the dashboard as soon as
+        # the service URL is known and redeploy.
+        #
+        # Canonical/trusted base URL of this deployment — your Render service
+        # URL, e.g. https://authorizer.onrender.com (include the scheme; a
+        # bare hostname is rejected). It is the only source used to build
         # verification/reset/magic-link URLs, the JWT iss claim, and OIDC
-        # discovery URLs. Leaving it empty exposes host-header-injection
-        # account takeover (CWE-640) — set this in the Render dashboard
-        # once the service URL is known.
+        # discovery URLs; deriving them from request headers instead exposes
+        # host-header-injection account takeover (CWE-640).
+        #
+        # Not populated automatically: a blueprint cannot concatenate the
+        # scheme onto fromService.host, and the value must be a full URL.
         sync: false
       # ----------------------------------------------------------------
       # April 2026 security hardening flags. See
       # https://docs.authorizer.dev/core/security for the full reference.
       # ----------------------------------------------------------------
+      - key: REDIRECT_URIS
+        # Comma-separated EXACT redirect URIs for this deployment's own client
+        # (CLIENT_ID above), e.g.
+        #   https://authorizer.onrender.com/app,https://yoursite.com/callback
+        #
+        # Unset keeps the pre-2.4.0 behaviour: redirect_uri is matched against
+        # ALLOWED_ORIGINS, which compares origins only, so any path under an
+        # allowed host is accepted. Empty is a no-op, not a lockout.
+        #
+        # sync:false because the value is deployment-specific and cannot be
+        # derived here — set it in the Render dashboard once your service URL
+        # and app callbacks are known. It applies to EVERY flow carrying this
+        # client_id, so list all of them or those logins are refused with
+        # invalid redirect_uri.
+        sync: false
       - key: OAUTH2_1_STRICT
         value: "false"
       - key: TRUSTED_PROXIES
@@ -74,8 +101,3 @@ services:
         value: "30"
       - key: GRAPHQL_MAX_BODY_BYTES
         value: "1048576"
-
-databases:
-  - name: authorizer-db
-    plan: free
-    databaseName: authorizer
