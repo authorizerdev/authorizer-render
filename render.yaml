@@ -3,7 +3,7 @@ services:
     name: authorizer
     env: docker
     autoDeploy: false
-    healthCheckPath: /
+    healthCheckPath: /health
     envVars:
       - key: DATABASE_URL
         fromDatabase:
@@ -58,6 +58,21 @@ services:
       # April 2026 security hardening flags. See
       # https://docs.authorizer.dev/core/security for the full reference.
       # ----------------------------------------------------------------
+      - key: REDIRECT_URIS
+        # Comma-separated EXACT redirect URIs for this deployment's own client
+        # (CLIENT_ID above), e.g.
+        #   https://authorizer.onrender.com/app,https://yoursite.com/callback
+        #
+        # Unset keeps the pre-2.4.0 behaviour: redirect_uri is matched against
+        # ALLOWED_ORIGINS, which compares origins only, so any path under an
+        # allowed host is accepted. Empty is a no-op, not a lockout.
+        #
+        # sync:false because the value is deployment-specific and cannot be
+        # derived here — set it in the Render dashboard once your service URL
+        # and app callbacks are known. It applies to EVERY flow carrying this
+        # client_id, so list all of them or those logins are refused with
+        # invalid redirect_uri.
+        sync: false
       - key: OAUTH2_1_STRICT
         value: "false"
       - key: TRUSTED_PROXIES
